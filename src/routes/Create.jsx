@@ -59,13 +59,13 @@ export default function Create() {
               You need to sign in to create and share prompts with the community.
             </p>
             <div className="card-actions justify-center">
-              <button 
+              <button
                 className="btn btn-primary"
                 onClick={() => setShowAuthPrompt(true)}
               >
                 Sign In to Continue
               </button>
-              <button 
+              <button
                 className="btn btn-outline"
                 onClick={() => navigate('/')}
               >
@@ -120,7 +120,7 @@ export default function Create() {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    
+
     if (!formData.title.trim() || !formData.content.trim()) {
       setError('Please fill in both title and content')
       return
@@ -130,7 +130,7 @@ export default function Create() {
     setError('')
 
     try {
-      await createPrompt({
+      const response = await createPrompt({
         title: formData.title.trim(),
         content: formData.content.trim(),
         categories: formData.categories,
@@ -139,10 +139,11 @@ export default function Create() {
         type: formData.type
       })
 
+      console.log({response});
       // Success - navigate back to feed
-      navigate('/', { 
-        state: { 
-          message: 'Prompt shared successfully! 🎉' 
+      navigate('/', {
+        state: {
+          message: 'Prompt shared successfully! 🎉'
         }
       })
     } catch (error) {
@@ -210,11 +211,10 @@ export default function Create() {
                   <button
                     key={category}
                     type="button"
-                    className={`badge badge-lg ${
-                      formData.categories.includes(category)
+                    className={`badge badge-lg ${formData.categories.includes(category)
                         ? 'badge-primary'
                         : 'badge-outline hover:badge-primary'
-                    }`}
+                      }`}
                     onClick={() => handleCategoryToggle(category)}
                     disabled={!formData.categories.includes(category) && formData.categories.length >= 3}
                   >
@@ -252,11 +252,10 @@ export default function Create() {
                     <button
                       key={model}
                       type="button"
-                      className={`badge badge-sm ${
-                        formData.models.includes(model)
+                      className={`badge badge-sm ${formData.models.includes(model)
                           ? 'badge-secondary'
                           : 'badge-outline hover:badge-secondary'
-                      }`}
+                        }`}
                       onClick={() => handleModelToggle(model)}
                     >
                       {model}
@@ -296,7 +295,7 @@ export default function Create() {
                   </>
                 )}
               </button>
-              
+
               <button
                 type="submit"
                 className="btn btn-primary gap-2 flex-1"

@@ -2,7 +2,7 @@ import { supabase } from './supabase.js'
 import { mockListPrompts, mockToggleLike, mockGetUserFavorites, mockCreatePrompt, mockImprovePrompt } from './mockData.js'
 
 // Set to true to use mock data for development
-const USE_MOCK_DATA = true
+const USE_MOCK_DATA = false
 
 /**
  * @typedef {Object} Prompt
@@ -36,21 +36,18 @@ export async function listPrompts({ q, category, language, page = 1, pageSize = 
 
   try {
     let query = supabase
-      .from('prompts')
+      .from('prompt')
       .select(`
-        *,
-        profiles:profiles!prompts_author_id_fkey(full_name),
-        likes_count:likes(count),
-        current_user_liked:likes!inner(user_id)
+        *
       `, { count: 'exact' })
       .order('created_at', { ascending: false })
 
     // Apply filters
     if (q) {
-      query = query.or(`title.ilike.%${q}%,body.ilike.%${q}%`)
+      query = query.or(`title.ilike.%${q}%,content.ilike.%${q}%`)
     }
     if (category) {
-      query = query.contains('categories', [category])
+      query = query.contains('category_slugs', [category.toLowerCase().replace(/\s+/g, '-')])
     }
     if (language) {
       query = query.eq('language', language)
@@ -68,9 +65,15 @@ export async function listPrompts({ q, category, language, page = 1, pageSize = 
     // Transform data to match our frontend model
     const transformedData = data?.map(prompt => ({
       ...prompt,
-      authorName: prompt.profiles?.full_name || 'Anonymous',
-      likesCount: prompt.likes_count?.[0]?.count || 0,
-      currentUserLiked: prompt.current_user_liked?.length > 0
+      body: prompt.content, // Legacy compatibility
+      categories: prompt.category_slugs?.map(slug => 
+        slug.split('-').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ')
+      ) || [],
+      authorName: prompt.author?.email || 'Anonymous',
+      likesCount: prompt.likes_count || 0,
+      currentUserLiked: false // We'll handle this separately for authenticated users
     })) || []
 
     return { data: transformedData, total: count || 0 }
@@ -97,33 +100,17 @@ export async function toggleLike(promptId) {
       throw new Error('User must be authenticated to like prompts')
     }
 
-    // Check if user already liked this prompt
-    const { data: existingLike } = await supabase
-      .from('likes')
-      .select('id')
-      .eq('prompt_id', promptId)
-      .eq('user_id', user.id)
-      .single()
-
-    if (existingLike) {
-      // Unlike
-      await supabase
-        .from('likes')
-        .delete()
-        .eq('prompt_id', promptId)
-        .eq('user_id', user.id)
-    } else {
-      // Like
-      await supabase
-        .from('likes')
-        .insert({ prompt_id: promptId, user_id: user.id })
-    }
-
-    // Get updated like count
-    const { data: likeCount } = await supabase
-      .from('likes')
-      .select('id', { count: 'exact' })
-      .eq('prompt_id', promptId)
+    // For now, let's use a simple approach since we don't have the exact likes table structure
+    // In a real implementation, you'd need to create a proper likes table
+    // This is a placeholder that won't work with the current schema
+    
+    // Since the schema shows likes_count as a cached field, we'll simulate the toggle
+    // In a real app, you'd need to:
+    // 1. Create a separate likes table
+    // 2. Use triggers to update the cached likes_count
+    
+    // For now, return mock data
+    throw new Error('Likes functionality requires additional database setup')
 
     return {
       likesCount: likeCount?.length || 0,
@@ -159,9 +146,9 @@ export async function getUserFavorites(page = 1, pageSize = 10) {
     const { data, error, count } = await supabase
       .from('likes')
       .select(`
-        prompts (
+        prompt (
           *,
-          profiles:profiles!prompts_author_id_fkey(full_name),
+          auth.users:auth.users!prompt_author_id_fkey(id),
           likes_count:likes(count)
         )
       `, { count: 'exact' })
@@ -173,9 +160,9 @@ export async function getUserFavorites(page = 1, pageSize = 10) {
 
     // Transform data
     const transformedData = data?.map(like => ({
-      ...like.prompts,
-      authorName: like.prompts.profiles?.full_name || 'Anonymous',
-      likesCount: like.prompts.likes_count?.length || 0,
+      ...like.prompt,
+      authorName: like.prompt['auth.users']?.id || 'Anonymous', // Using user ID as name since we don't have full_name
+      likesCount: like.prompt.likes_count?.length || 0,
       currentUserLiked: true
     })) || []
 
@@ -225,18 +212,18 @@ export async function createPrompt(promptData) {
     const { data, error } = await supabase
       .from('prompt')
       .insert(newPrompt)
-      .select(`
-        *,
-        profiles:profiles!prompt_author_id_fkey(full_name)
-      `)
-      .single()
+      // .select(`
+      //   *,
+      //   profiles:profiles!prompt_author_id_fkey(full_name)
+      // `)
+      // .single()
 
     if (error) throw error
 
     // Transform data to match frontend model
     return {
       ...data,
-      authorName: data.profiles?.full_name || 'Anonymous',
+      authorName: 'You', // Current user is the author
       body: data.content, // Legacy compatibility
       categories: promptData.categories || [],
       likesCount: 0,
