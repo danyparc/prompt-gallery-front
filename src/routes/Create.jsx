@@ -49,6 +49,8 @@ export default function Create() {
   const [isImproving, setIsImproving] = useState(false)
   const [error, setError] = useState('')
   const [showAuthPrompt, setShowAuthPrompt] = useState(false)
+  const [refineResults, setRefineResults] = useState(null)
+  const [showRefineModal, setShowRefineModal] = useState(false)
 
   // Check if user is authenticated
   if (!user && !showAuthPrompt) {
@@ -111,13 +113,24 @@ export default function Create() {
 
     setIsImproving(true)
     try {
-      const result = await improvePrompt(formData.content)
-      setFormData(prev => ({ ...prev, content: result.improvedContent }))
+      // Determine task type based on categories
+      const taskType = formData.categories.includes('Code Generation') ? 'code' : 
+                       formData.categories.includes('Creative Writing') ? 'creative' : 'general'
+      
+      const result = await improvePrompt(formData.content, taskType)
+      setRefineResults(result)
+      setShowRefineModal(true)
     } catch (error) {
       setError('Failed to improve prompt. Please try again.')
     } finally {
       setIsImproving(false)
     }
+  }
+
+  const handleSelectVariant = (variantContent) => {
+    setFormData(prev => ({ ...prev, content: variantContent }))
+    setShowRefineModal(false)
+    setRefineResults(null)
   }
 
   const handleSubmit = async (e) => {
@@ -332,6 +345,128 @@ export default function Create() {
           </form>
         </div>
       </div>
+
+      {/* Refine Results Modal */}
+      {showRefineModal && refineResults && (
+        <dialog className="modal modal-open">
+          <div className="modal-box max-w-4xl">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-lg">✨ Prompt Analysis & Variants</h3>
+              <button
+                className="btn btn-sm btn-circle btn-ghost"
+                onClick={() => setShowRefineModal(false)}
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Analysis Section */}
+            {refineResults.analysis && (
+              <div className="mb-6">
+                <h4 className="font-semibold mb-2">Analysis</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div className="stat bg-base-200 rounded-lg p-4">
+                    <div className="stat-title">Clarity Score</div>
+                    <div className="stat-value text-2xl">
+                      {Math.round((refineResults.analysis.clarity_score || 0) * 100)}%
+                    </div>
+                  </div>
+                  <div className="stat bg-base-200 rounded-lg p-4">
+                    <div className="stat-title">Completeness Score</div>
+                    <div className="stat-value text-2xl">
+                      {Math.round((refineResults.analysis.completeness_score || 0) * 100)}%
+                    </div>
+                  </div>
+                </div>
+
+                {refineResults.analysis.issues && refineResults.analysis.issues.length > 0 && (
+                  <div className="alert alert-warning mb-4">
+                    <div>
+                      <h5 className="font-semibold">Issues Identified:</h5>
+                      <ul className="list-disc list-inside mt-2">
+                        {refineResults.analysis.issues.map((issue, index) => (
+                          <li key={index} className="text-sm">{issue}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+
+                {refineResults.analysis.suggestions && refineResults.analysis.suggestions.length > 0 && (
+                  <div className="alert alert-info">
+                    <div>
+                      <h5 className="font-semibold">Suggestions:</h5>
+                      <ul className="list-disc list-inside mt-2">
+                        {refineResults.analysis.suggestions.map((suggestion, index) => (
+                          <li key={index} className="text-sm">{suggestion}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Variants Section */}
+            {refineResults.variants && (
+              <div className="mb-6">
+                <h4 className="font-semibold mb-3">Prompt Variants</h4>
+                <div className="space-y-3">
+                  {Object.entries(refineResults.variants).map(([type, content]) => {
+                    const evaluation = refineResults.evaluations?.find(e => e.type === type)
+                    const isBest = refineResults.best?.type === type
+                    
+                    return (
+                      <div
+                        key={type}
+                        className={`card bg-base-200 ${isBest ? 'ring-2 ring-primary' : ''}`}
+                      >
+                        <div className="card-body p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <div className="flex items-center gap-2">
+                              <h5 className="font-medium capitalize">{type}</h5>
+                              {isBest && <div className="badge badge-primary">Best</div>}
+                            </div>
+                            {evaluation && (
+                              <div className="text-sm text-base-content/60">
+                                Score: {Math.round(evaluation.score * 100)}%
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-sm mb-3">{content}</p>
+                          <button
+                            className="btn btn-sm btn-primary"
+                            onClick={() => handleSelectVariant(content)}
+                          >
+                            Use This Version
+                          </button>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Processing Info */}
+            {refineResults.metadata && (
+              <div className="text-xs text-base-content/50 mt-4 text-center">
+                Processed in {refineResults.metadata.processing_time_ms}ms using {refineResults.metadata.model_used}
+              </div>
+            )}
+
+            <div className="modal-action">
+              <button
+                className="btn btn-ghost"
+                onClick={() => setShowRefineModal(false)}
+              >
+                Keep Original
+              </button>
+            </div>
+          </div>
+        </dialog>
+      )}
+
     </div>
   )
 }

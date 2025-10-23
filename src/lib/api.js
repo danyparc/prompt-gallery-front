@@ -236,21 +236,47 @@ export async function createPrompt(promptData) {
 }
 
 /**
- * Improve a prompt using AI
+ * Improve a prompt using AI via the refine API
  * @param {string} originalContent - The original prompt content
- * @returns {Promise<{improvedContent: string, suggestions: string[]}>}
+ * @param {string} taskType - The type of task (e.g., 'code', 'creative', 'general')
+ * @returns {Promise<{analysis: Object, variants: Object, best: Object, improvedContent: string, suggestions: string[]}>}
  */
-export async function improvePrompt(originalContent) {
+export async function improvePrompt(originalContent, taskType = 'general') {
   if (USE_MOCK_DATA) {
     return mockImprovePrompt(originalContent)
   }
 
   try {
-    // In a real implementation, this would call an AI service
-    // For now, we'll use the mock function even in production mode
-    return mockImprovePrompt(originalContent)
+    const response = await fetch('http://3.134.5.42/api/refine', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        prompt: originalContent,
+        task_type: taskType
+      })
+    })
+
+    if (!response.ok) {
+      throw new Error(`Failed to refine prompt: ${response.status} ${response.statusText}`)
+    }
+
+    const data = await response.json()
+    
+    // Transform the API response to match the expected format
+    return {
+      improvedContent: data.best?.content || data.variants?.detailed || originalContent,
+      suggestions: data.analysis?.suggestions || [],
+      analysis: data.analysis,
+      variants: data.variants,
+      best: data.best,
+      evaluations: data.evaluations,
+      metadata: data.metadata
+    }
   } catch (error) {
     console.error('Error improving prompt:', error)
-    throw error
+    // Fallback to mock data if the API fails
+    return mockImprovePrompt(originalContent)
   }
 }

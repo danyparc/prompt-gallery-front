@@ -1,0 +1,76 @@
+// endpoint: http://3.134.5.42/api/refine
+// method: POST
+// description: Refine a prompt based on analysis and generate variants.
+// body:{
+//     "prompt": "Create a Python function to sort a list of numbers", 
+//     "task_type": "code"
+// }
+
+{
+    "promptId": "NO_DATABASE",
+    "analysis": {
+        "issues": [
+            "El prompt es bastante claro, pero podría ser más específico sobre el tipo de ordenación (ascendente o descendente).",
+            "No se menciona si se deben manejar casos especiales, como listas vacías o listas con elementos no numéricos."
+        ],
+        "suggestions": [
+            "Especificar si la función debe ordenar en orden ascendente o descendente.",
+            "Incluir instrucciones sobre cómo manejar listas vacías o elementos no numéricos.",
+            "Proporcionar ejemplos de entrada y salida esperados para mayor claridad."
+        ],
+        "clarity_score": 0.7,
+        "completeness_score": 0.6,
+        "raw_analysis": "El prompt solicita la creación de una función en Python para ordenar una lista de números, lo cual es una tarea común y clara. Sin embargo, carece de detalles sobre el tipo de ordenación deseada y cómo manejar situaciones especiales, lo que puede llevar a interpretaciones variadas. Mejorar la especificidad y proporcionar ejemplos ayudaría a aumentar la claridad y la completitud de la instrucción."
+    },
+    "variants": {
+        "concise": "Crea una función en Python que ordene una lista de números.",
+        "detailed": "Desarrolla una función en Python que reciba como entrada una lista de números y la ordene en orden ascendente. La función debe manejar listas vacías devolviendo una lista vacía y debe ignorar o lanzar un error para elementos no numéricos. Ejemplos: entrada [3, 1, 2] debe devolver [1, 2, 3] y entrada [] debe devolver [].",
+        "testable": "Crea una función en Python que ordene una lista de números en orden ascendente. La función debe cumplir con los siguientes criterios: 1) Debe devolver una lista vacía si la entrada es una lista vacía. 2) Debe ignorar elementos no numéricos y solo incluir números en la lista de salida. 3) Ejemplo de entrada: [5, 3, 8] debe devolver [3, 5, 8]. Ejemplo de entrada: [2, 'a', 1] debe devolver [1, 2]."
+    },
+    "evaluations": [
+        {
+            "type": "testable",
+            "score": 0.74,
+            "metrics": {
+                "clarity": 0.55,
+                "completeness": 0.85,
+                "specificity": 0.7999999999999999,
+                "token_count": 100,
+                "estimated_cost": 0.000015
+            }
+        },
+        {
+            "type": "detailed",
+            "score": 0.71,
+            "metrics": {
+                "clarity": 0.55,
+                "completeness": 0.85,
+                "specificity": 0.7,
+                "token_count": 81,
+                "estimated_cost": 0.000012
+            }
+        },
+        {
+            "type": "concise",
+            "score": 0.55,
+            "metrics": {
+                "clarity": 0.5,
+                "completeness": 0.5,
+                "specificity": 0.5,
+                "token_count": 15,
+                "estimated_cost": 0.000002
+            }
+        }
+    ],
+    "best": {
+        "type": "testable",
+        "score": 0.74,
+        "content": "Crea una función en Python que ordene una lista de números en orden ascendente. La función debe cumplir con los siguientes criterios: 1) Debe devolver una lista vacía si la entrada es una lista vacía. 2) Debe ignorar elementos no numéricos y solo incluir números en la lista de salida. 3) Ejemplo de entrada: [5, 3, 8] debe devolver [3, 5, 8]. Ejemplo de entrada: [2, 'a', 1] debe devolver [1, 2]."
+    },
+    "metadata": {
+        "processing_time_ms": 49767,
+        "model_used": "gpt-4o-mini",
+        "total_tokens": 196
+    },
+    "database_note": "Running without database - no persistence or meta-learning"
+}
