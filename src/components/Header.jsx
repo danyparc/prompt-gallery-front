@@ -88,6 +88,21 @@ export default function Header() {
                 </Link>
               </div>
 
+              {/* Create Button */}
+              <Link 
+                to="/create"
+                className={`btn btn-sm gap-2 ${
+                  location.pathname === '/create'
+                    ? 'btn-primary'
+                    : 'btn-outline btn-primary'
+                }`}
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
+                </svg>
+                <span className="hidden sm:inline">Create</span>
+              </Link>
+
               {/* Theme Switcher */}
               <button
                 onClick={toggleTheme}
@@ -142,55 +157,57 @@ export default function Header() {
       </header>
 
       {/* Search and Filters */}
-      <div className="bg-base-200 border-b border-base-300">
-        <div className="container mx-auto px-4 py-4">
-          {/* Search Bar */}
-          <div className="flex flex-col md:flex-row gap-4 items-center">
-            <div className="flex-1 relative">
-              <input
-                type="text"
-                placeholder="Search prompts..."
-                className="input w-full bg-base-100 border-base-300 text-base-content placeholder-base-content/50 focus:border-primary"
-                value={filters.q}
-                onChange={handleSearch}
-              />
-              <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg className="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
+      {location.pathname === '/' && (
+        <div className="bg-base-200 border-b border-base-300">
+          <div className="container mx-auto px-4 py-4">
+            {/* Search Bar */}
+            <div className="flex flex-col md:flex-row gap-4 items-center">
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  placeholder="Search prompts..."
+                  className="input w-full bg-base-100 border-base-300 text-base-content placeholder-base-content/50 focus:border-primary"
+                  value={filters.q}
+                  onChange={handleSearch}
+                />
+                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                  <svg className="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
               </div>
+
+              {/* Language Filter */}
+              <select 
+                className="select bg-base-100 border-base-300 text-base-content focus:border-primary"
+                value={filters.language || 'All'}
+                onChange={handleLanguageChange}
+              >
+                {languages.map(lang => (
+                  <option key={lang} value={lang}>{lang}</option>
+                ))}
+              </select>
             </div>
 
-            {/* Language Filter */}
-            <select 
-              className="select bg-base-100 border-base-300 text-base-content focus:border-primary"
-              value={filters.language || 'All'}
-              onChange={handleLanguageChange}
-            >
-              {languages.map(lang => (
-                <option key={lang} value={lang}>{lang}</option>
+            {/* Category Pills */}
+            <div className="flex flex-wrap gap-2 mt-4">
+              {categories.map(category => (
+                <button
+                  key={category}
+                  className={`px-3 py-1 text-sm rounded-full transition-colors ${
+                    (category === 'All' && !filters.category) || filters.category === category
+                      ? 'bg-primary text-primary-content'
+                      : 'bg-base-300 text-base-content hover:bg-base-100'
+                  }`}
+                  onClick={() => handleCategoryChange(category)}
+                >
+                  {category}
+                </button>
               ))}
-            </select>
-          </div>
-
-          {/* Category Pills */}
-          <div className="flex flex-wrap gap-2 mt-4">
-            {categories.map(category => (
-              <button
-                key={category}
-                className={`px-3 py-1 text-sm rounded-full transition-colors ${
-                  (category === 'All' && !filters.category) || filters.category === category
-                    ? 'bg-primary text-primary-content'
-                    : 'bg-base-300 text-base-content hover:bg-base-100'
-                }`}
-                onClick={() => handleCategoryChange(category)}
-              >
-                {category}
-              </button>
-            ))}
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Auth Dialog */}
       <AuthDialog

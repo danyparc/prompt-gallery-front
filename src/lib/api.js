@@ -1,5 +1,5 @@
 import { supabase } from './supabase.js'
-import { mockListPrompts, mockToggleLike, mockGetUserFavorites } from './mockData.js'
+import { mockListPrompts, mockToggleLike, mockGetUserFavorites, mockCreatePrompt, mockImprovePrompt } from './mockData.js'
 
 // Set to true to use mock data for development
 const USE_MOCK_DATA = true
@@ -183,5 +183,87 @@ export async function getUserFavorites(page = 1, pageSize = 10) {
   } catch (error) {
     console.error('Error fetching user favorites:', error)
     return { data: [], total: 0 }
+  }
+}
+
+/**
+ * Create a new prompt
+ * @param {Object} promptData
+ * @param {string} promptData.title - The prompt title
+ * @param {string} promptData.content - The prompt content
+ * @param {string[]} [promptData.categories] - Categories for the prompt
+ * @param {string} [promptData.type] - Type of prompt
+ * @param {string} [promptData.language] - Language of the prompt
+ * @param {string[]} [promptData.models] - Models tested with this prompt
+ * @param {string[]} [promptData.tags] - Tags for the prompt
+ * @returns {Promise<Prompt>}
+ */
+export async function createPrompt(promptData) {
+  if (USE_MOCK_DATA) {
+    return mockCreatePrompt(promptData)
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error('User must be authenticated to create prompts')
+    }
+
+    const newPrompt = {
+      author_id: user.id,
+      title: promptData.title,
+      content: promptData.content,
+      type: promptData.type || 'general',
+      language: promptData.language || 'English',
+      category_slugs: promptData.categories?.map(cat => cat.toLowerCase().replace(/\s+/g, '-')) || [],
+      tags: promptData.tags || [],
+      models: promptData.models || [],
+      is_public: true
+    }
+
+    const { data, error } = await supabase
+      .from('prompt')
+      .insert(newPrompt)
+      .select(`
+        *,
+        profiles:profiles!prompt_author_id_fkey(full_name)
+      `)
+      .single()
+
+    if (error) throw error
+
+    // Transform data to match frontend model
+    return {
+      ...data,
+      authorName: data.profiles?.full_name || 'Anonymous',
+      body: data.content, // Legacy compatibility
+      categories: promptData.categories || [],
+      likesCount: 0,
+      currentUserLiked: false
+    }
+  } catch (error) {
+    console.error('Error creating prompt:', error)
+    throw error
+  }
+}
+
+/**
+ * Improve a prompt using AI
+ * @param {string} originalContent - The original prompt content
+ * @returns {Promise<{improvedContent: string, suggestions: string[]}>}
+ */
+export async function improvePrompt(originalContent) {
+  if (USE_MOCK_DATA) {
+    return mockImprovePrompt(originalContent)
+  }
+
+  try {
+    // In a real implementation, this would call an AI service
+    // For now, we'll use the mock function even in production mode
+    return mockImprovePrompt(originalContent)
+  } catch (error) {
+    console.error('Error improving prompt:', error)
+    throw error
   }
 }

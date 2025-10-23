@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useFeed } from '../context/FeedContext.jsx'
 import { listPrompts } from '../lib/api.js'
 import PromptCard from '../components/PromptCard.jsx'
@@ -13,7 +14,9 @@ export default function Feed() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
   const [total, setTotal] = useState(0)
+  const [successMessage, setSuccessMessage] = useState('')
   const { filters, page, setPage, clearOptimisticLikes } = useFeed()
+  const location = useLocation()
 
   const totalPages = Math.ceil(total / PROMPTS_PER_PAGE)
 
@@ -21,6 +24,18 @@ export default function Feed() {
   useEffect(() => {
     fetchPrompts()
   }, [filters, page])
+
+  // Handle success message from navigation state
+  useEffect(() => {
+    if (location.state?.message) {
+      setSuccessMessage(location.state.message)
+      // Clear the message after 5 seconds
+      const timer = setTimeout(() => {
+        setSuccessMessage('')
+      }, 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [location.state])
 
   const fetchPrompts = async () => {
     setLoading(true)
@@ -69,10 +84,10 @@ export default function Feed() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-base-content">
             Discover Amazing Prompts
           </h1>
-          <p className="text-gray-400 mt-2">
+          <p className="text-base-content/60 mt-2">
             Explore, like, and copy prompts from our community
           </p>
         </div>
@@ -119,9 +134,27 @@ export default function Feed() {
 
   return (
     <div>
+      {/* Success Message */}
+      {successMessage && (
+        <div className="mb-6">
+          <div className="alert alert-success">
+            <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>{successMessage}</span>
+            <button 
+              className="btn btn-sm btn-ghost ml-auto"
+              onClick={() => setSuccessMessage('')}
+            >
+              ×
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-3xl font-bold text-base-content">
           Discover Amazing Prompts
         </h1>
         <p className="text-gray-400 mt-2">

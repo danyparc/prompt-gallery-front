@@ -2,6 +2,7 @@ import { Routes, Route } from 'react-router-dom'
 import Header from './components/Header.jsx'
 import Feed from './routes/Feed.jsx'
 import Favorites from './routes/Favorites.jsx'
+import Create from './routes/Create.jsx'
 
 function App() {
   return (
@@ -11,6 +12,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Feed />} />
           <Route path="/favorites" element={<Favorites />} />
+          <Route path="/create" element={<Create />} />
         </Routes>
       </main>
     </div>
