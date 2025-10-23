@@ -170,7 +170,7 @@ export default function Create() {
 
   const isFormValid = formData.title.trim() && formData.content.trim()
   const characterCount = formData.content.length
-  const maxCharacters = 2000
+  const maxCharacters = 200000
 
   return (
     <div className="max-w-2xl mx-auto">

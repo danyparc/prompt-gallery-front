@@ -224,7 +224,7 @@ export async function createPrompt(promptData) {
     return {
       ...data,
       authorName: 'You', // Current user is the author
-      body: data.content, // Legacy compatibility
+      body: promptData.content, // Legacy compatibility
       categories: promptData.categories || [],
       likesCount: 0,
       currentUserLiked: false
