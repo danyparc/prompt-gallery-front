@@ -2,6 +2,105 @@
 
 A social hub to write, share, like, and collaborate on AI prompts. Think of it as a blog-like platform specifically designed for the AI community to discover, collect, and share high-quality prompts.
 
+# ✨ Evidencia de Automejora
+
+## 🚀 Sistema de Refinamiento Inteligente de Prompts
+
+Nuestro sistema incluye una funcionalidad avanzada de **automejora de prompts** que utiliza inteligencia artificial para analizar, evaluar y generar variantes optimizadas de cualquier prompt ingresado por el usuario.
+
+### 🎯 ¿Por qué es importante?
+
+La calidad de un prompt determina directamente la calidad de la respuesta de la IA. Un prompt mal estructurado, ambiguo o incompleto puede resultar en respuestas imprecisas o inútiles. Nuestro sistema de automejora:
+
+- **📊 Analiza** la claridad y completitud del prompt original
+- **🔍 Identifica** problemas específicos y áreas de mejora
+- **🎨 Genera** múltiples variantes optimizadas (concisa, detallada, testeable)
+- **⚡ Evalúa** cada variante con métricas cuantitativas
+- **🏆 Recomienda** la mejor versión basada en análisis objetivo
+
+### 🛠️ Endpoint de Refinamiento
+
+**URL**: `http://3.134.5.42/api/refine`  
+**Método**: `POST`  
+**Content-Type**: `application/json`
+
+#### Request Body:
+```json
+{
+  "prompt": "Create a Python function to sort a list of numbers",
+  "task_type": "code"
+}
+```
+
+#### Response Structure:
+```json
+{
+  "promptId": "NO_DATABASE",
+  "analysis": {
+    "issues": [
+      "El prompt es bastante claro, pero podría ser más específico sobre el tipo de ordenación",
+      "No se menciona si se deben manejar casos especiales como listas vacías"
+    ],
+    "suggestions": [
+      "Especificar si la función debe ordenar en orden ascendente o descendente",
+      "Incluir instrucciones sobre cómo manejar listas vacías",
+      "Proporcionar ejemplos de entrada y salida esperados"
+    ],
+    "clarity_score": 0.7,
+    "completeness_score": 0.6,
+    "raw_analysis": "Análisis detallado del prompt..."
+  },
+  "variants": {
+    "concise": "Versión simplificada del prompt",
+    "detailed": "Versión expandida con más contexto y especificaciones",
+    "testable": "Versión optimizada para evaluación clara con criterios específicos"
+  },
+  "evaluations": [
+    {
+      "type": "testable",
+      "score": 0.74,
+      "metrics": {
+        "clarity": 0.55,
+        "completeness": 0.85,
+        "specificity": 0.80,
+        "token_count": 100,
+        "estimated_cost": 0.000015
+      }
+    }
+  ],
+  "best": {
+    "type": "testable",
+    "score": 0.74,
+    "content": "La versión recomendada del prompt mejorado"
+  },
+  "metadata": {
+    "processing_time_ms": 49767,
+    "model_used": "gpt-4o-mini",
+    "total_tokens": 196
+  }
+}
+```
+
+#### Tipos de Tareas Soportadas:
+- `"code"` - Para prompts relacionados con programación y desarrollo
+- `"creative"` - Para prompts de escritura creativa y contenido artístico  
+- `"general"` - Para prompts de propósito general y análisis
+
+### 🎪 Integración en la UI
+
+El sistema se integra seamlessly en nuestra interfaz de creación de prompts:
+
+1. **Detección Automática**: El sistema determina el `task_type` basándose en las categorías seleccionadas
+2. **Análisis Visual**: Muestra scores de claridad y completitud en tiempo real
+3. **Selección Interactiva**: El usuario puede elegir entre múltiples variantes mejoradas
+4. **Retroalimentación Inmediata**: Identifica problemas específicos y ofrece sugerencias concretas
+
+### 🔬 Valor Agregado
+
+Esta funcionalidad convierte nuestra plataforma en más que un simple repositorio de prompts - la transforma en una **herramienta activa de mejora de la calidad del contenido**, donde cada prompt puede ser optimizado profesionalmente antes de ser compartido con la comunidad.
+
+---
+
 ## ✨ Features
 
 - **🔍 Discover Prompts**: Browse a curated collection of AI prompts with search and filtering
