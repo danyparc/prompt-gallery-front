@@ -24,10 +24,10 @@ export default function LikeButton({ promptId, likesCount, currentUserLiked, cla
 
   return (
     <button
-      className={`flex items-center space-x-1 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+      className={`btn btn-sm gap-1 ${
         likeState.currentUserLiked 
-          ? 'bg-red-500 text-white hover:bg-red-600' 
-          : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
+          ? 'btn-error' 
+          : 'btn-outline btn-neutral'
       } ${!user ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       onClick={handleLike}
       disabled={!user}

@@ -2,17 +2,17 @@ export default function EmptyState({ title, description, icon, actionButton }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
       {icon && (
-        <div className="w-24 h-24 mb-6 text-gray-400">
+        <div className="w-24 h-24 mb-6 text-base-content/40">
           {icon}
         </div>
       )}
       
-      <h3 className="text-xl font-semibold text-white mb-2">
+      <h3 className="text-xl font-semibold text-base-content mb-2">
         {title}
       </h3>
       
       {description && (
-        <p className="text-gray-400 max-w-md mb-6">
+        <p className="text-base-content/60 max-w-md mb-6">
           {description}
         </p>
       )}

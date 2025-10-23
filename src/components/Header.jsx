@@ -2,7 +2,9 @@ import { useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { useFeed } from '../context/FeedContext.jsx'
+import { useTheme } from '../context/ThemeContext.jsx'
 import AuthDialog from './AuthDialog.jsx'
+import isologo from '../assets/isologo.png'
 
 const categories = [
   'All',
@@ -28,6 +30,7 @@ const languages = [
 export default function Header() {
   const { user, signOut } = useAuth()
   const { filters, updateFilters } = useFeed()
+  const { theme, toggleTheme } = useTheme()
   const location = useLocation()
   const [showAuthDialog, setShowAuthDialog] = useState(false)
   const [showUserMenu, setShowUserMenu] = useState(false)
@@ -51,13 +54,13 @@ export default function Header() {
 
   return (
     <>
-      <header className="bg-gray-800 shadow-lg">
+      <header className="bg-base-200 shadow-lg">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Brand */}
             <Link to="/" className="flex items-center space-x-2 text-xl font-bold">
-              <span className="text-blue-400">Prompt</span>
-              <span className="text-purple-400">Gallery</span>
+                <img src={isologo} alt="Logo" className="w-8 h-8" />
+              <span className="text-lg">Prompt Gallery</span>
             </Link>
 
             {/* Navigation */}
@@ -67,8 +70,8 @@ export default function Header() {
                   to="/" 
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     location.pathname === '/' 
-                      ? 'bg-gray-700 text-white' 
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      ? 'bg-base-300 text-base-content' 
+                      : 'text-base-content hover:bg-base-300'
                   }`}
                 >
                   Feed
@@ -77,30 +80,47 @@ export default function Header() {
                   to="/favorites" 
                   className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
                     location.pathname === '/favorites' 
-                      ? 'bg-gray-700 text-white' 
-                      : 'text-gray-300 hover:bg-gray-700 hover:text-white'
+                      ? 'bg-base-300 text-base-content' 
+                      : 'text-base-content hover:bg-base-300'
                   }`}
                 >
                   Favorites
                 </Link>
               </div>
 
+              {/* Theme Switcher */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg bg-base-300 hover:bg-base-100 transition-colors"
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? (
+                  <svg className="w-5 h-5 text-base-content" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-base-content" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                )}
+              </button>
+
               {/* User Menu */}
               {user ? (
                 <div className="relative">
                   <button 
-                    className="w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center hover:bg-blue-600 transition-colors"
+                    className="w-8 h-8 bg-primary text-primary-content rounded-full flex items-center justify-center hover:bg-primary-focus transition-colors"
                     onClick={() => setShowUserMenu(!showUserMenu)}
                   >
                     {user.email?.[0]?.toUpperCase() || 'U'}
                   </button>
                   {showUserMenu && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                      <div className="px-4 py-2 text-sm text-gray-700 border-b">
+                    <div className="absolute right-0 mt-2 w-48 bg-base-100 rounded-md shadow-lg py-1 z-50 border border-base-300">
+                      <div className="px-4 py-2 text-sm text-base-content border-b border-base-300">
                         {user.email}
                       </div>
                       <button 
-                        className="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                        className="block w-full text-left px-4 py-2 text-sm text-base-content hover:bg-base-200"
                         onClick={handleSignOut}
                       >
                         Sign out
@@ -110,7 +130,7 @@ export default function Header() {
                 </div>
               ) : (
                 <button 
-                  className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium transition-colors"
+                  className="bg-primary hover:bg-primary-focus text-primary-content px-4 py-2 rounded-md text-sm font-medium transition-colors"
                   onClick={() => setShowAuthDialog(true)}
                 >
                   Sign In
@@ -122,7 +142,7 @@ export default function Header() {
       </header>
 
       {/* Search and Filters */}
-      <div className="bg-gray-800 border-b border-gray-700">
+      <div className="bg-base-200 border-b border-base-300">
         <div className="container mx-auto px-4 py-4">
           {/* Search Bar */}
           <div className="flex flex-col md:flex-row gap-4 items-center">
@@ -130,12 +150,12 @@ export default function Header() {
               <input
                 type="text"
                 placeholder="Search prompts..."
-                className="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 search-input"
+                className="input w-full bg-base-100 border-base-300 text-base-content placeholder-base-content/50 focus:border-primary"
                 value={filters.q}
                 onChange={handleSearch}
               />
               <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="h-5 w-5 text-base-content/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m21 21-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                 </svg>
               </div>
@@ -143,7 +163,7 @@ export default function Header() {
 
             {/* Language Filter */}
             <select 
-              className="px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="select bg-base-100 border-base-300 text-base-content focus:border-primary"
               value={filters.language || 'All'}
               onChange={handleLanguageChange}
             >
@@ -160,8 +180,8 @@ export default function Header() {
                 key={category}
                 className={`px-3 py-1 text-sm rounded-full transition-colors ${
                   (category === 'All' && !filters.category) || filters.category === category
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    ? 'bg-primary text-primary-content'
+                    : 'bg-base-300 text-base-content hover:bg-base-100'
                 }`}
                 onClick={() => handleCategoryChange(category)}
               >

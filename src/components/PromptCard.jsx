@@ -28,14 +28,14 @@ export default function PromptCard({ prompt }) {
   }
 
   return (
-    <div className="bg-gray-800 rounded-lg shadow-lg p-6 prompt-card-hover">
+    <div className="bg-base-200 rounded-lg shadow-lg p-6 prompt-card-hover hover:bg-base-300 transition-colors border border-base-300">
       {/* Title */}
-      <h2 className="text-lg font-bold text-white mb-3 line-clamp-2">
+      <h2 className="text-lg font-bold text-base-content mb-3 line-clamp-2">
         {prompt.title}
       </h2>
 
       {/* Excerpt */}
-      <p className="text-gray-300 text-sm leading-relaxed mb-4 line-clamp-3">
+      <p className="text-base-content/70 text-sm leading-relaxed mb-4 line-clamp-3">
         {getExcerpt(prompt.body)}
       </p>
 
@@ -43,12 +43,12 @@ export default function PromptCard({ prompt }) {
       {prompt.categories && prompt.categories.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {prompt.categories.slice(0, 3).map((category, index) => (
-            <span key={index} className="px-2 py-1 bg-gray-700 text-gray-300 rounded-full text-xs border border-gray-600">
+            <span key={index} className="badge badge-neutral badge-sm">
               {category}
             </span>
           ))}
           {prompt.categories.length > 3 && (
-            <span className="px-2 py-1 bg-gray-700 text-gray-400 rounded-full text-xs">
+            <span className="badge badge-ghost badge-sm">
               +{prompt.categories.length - 3}
             </span>
           )}
@@ -59,12 +59,12 @@ export default function PromptCard({ prompt }) {
       {prompt.models && prompt.models.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-4">
           {prompt.models.slice(0, 2).map((model, index) => (
-            <span key={index} className="px-2 py-1 bg-purple-600 text-white rounded-full text-xs">
+            <span key={index} className="badge badge-secondary badge-sm">
               {model}
             </span>
           ))}
           {prompt.models.length > 2 && (
-            <span className="px-2 py-1 bg-gray-700 text-gray-400 rounded-full text-xs">
+            <span className="badge badge-ghost badge-sm">
               +{prompt.models.length - 2}
             </span>
           )}
@@ -72,7 +72,7 @@ export default function PromptCard({ prompt }) {
       )}
 
       {/* Metadata */}
-      <div className="flex items-center justify-between text-xs text-gray-400 mb-4">
+      <div className="flex items-center justify-between text-xs text-base-content/60 mb-4">
         <div className="flex items-center space-x-2">
           <span>by {prompt.authorName}</span>
           <span>•</span>
@@ -80,7 +80,7 @@ export default function PromptCard({ prompt }) {
           {prompt.language && (
             <>
               <span>•</span>
-              <span className="px-1 py-0.5 bg-gray-700 rounded text-xs">
+              <span className="badge badge-outline badge-xs">
                 {prompt.language}
               </span>
             </>
@@ -97,10 +97,10 @@ export default function PromptCard({ prompt }) {
         />
 
         <button
-          className={`flex items-center space-x-2 px-3 py-1 rounded-md text-sm font-medium transition-colors ${
+          className={`btn btn-sm ${
             copied 
-              ? 'bg-green-600 text-white' 
-              : 'bg-gray-700 text-gray-300 hover:bg-gray-600 border border-gray-600'
+              ? 'btn-success' 
+              : 'btn-outline btn-neutral'
           }`}
           onClick={handleCopyPrompt}
         >
