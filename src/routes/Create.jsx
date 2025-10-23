@@ -10,6 +10,8 @@ const categories = [
   'Education',
   'Business',
   'Research',
+  'Cars',
+  'Sells',
   'Fun',
   'General'
 ]
