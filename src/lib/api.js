@@ -342,12 +342,10 @@ export async function getUserFavorites(page = 1, pageSize = 10) {
     const to = from + pageSize - 1
 
     const { data, error, count } = await supabase
-      .from('likes')
+      .from('prompt_like')
       .select(`
-        prompt (
-          *,
-          auth.users:auth.users!prompt_author_id_fkey(id),
-          likes_count:likes(count)
+        prompt:prompt_id (
+          *
         )
       `, { count: 'exact' })
       .eq('user_id', user.id)
@@ -359,9 +357,15 @@ export async function getUserFavorites(page = 1, pageSize = 10) {
     // Transform data
     const transformedData = data?.map(like => ({
       ...like.prompt,
-      authorName: like.prompt['auth.users']?.id || 'Anonymous', // Using user ID as name since we don't have full_name
-      likesCount: like.prompt.likes_count?.length || 0,
-      currentUserLiked: true
+      authorName: 'Anonymous', // We'll get this from the prompt author_id if needed
+      likesCount: like.prompt.likes_count || 0,
+      currentUserLiked: true,
+      body: like.prompt.content, // Legacy compatibility
+      categories: like.prompt.category_slugs?.map(slug => 
+        slug.split('-').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1)
+        ).join(' ')
+      ) || []
     })) || []
 
     return { data: transformedData, total: count || 0 }

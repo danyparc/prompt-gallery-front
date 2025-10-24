@@ -65,17 +65,17 @@ export default function Favorites() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-base-content">
             Your Favorite Prompts
           </h1>
         </div>
         <div className="bg-gray-800 rounded-lg shadow-lg p-8 text-center">
-          <h2 className="text-xl font-semibold text-white mb-4">Sign in to view favorites</h2>
+          <h2 className="text-xl font-semibold text-base-content mb-4">Sign in to view favorites</h2>
           <p className="text-gray-400 mb-6">
             You need to be signed in to access your favorite prompts collection.
           </p>
           <button 
-            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors"
+            className="px-6 py-2 bg-blue-500 text-base-content rounded-md hover:bg-blue-600 transition-colors"
             onClick={() => {
               // This would trigger the auth dialog from the header
               // For now, we'll just show a message
@@ -93,7 +93,7 @@ export default function Favorites() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-base-content">
             Your Favorite Prompts
           </h1>
           <p className="text-gray-400 mt-2">
@@ -109,7 +109,7 @@ export default function Favorites() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-base-content">
             Your Favorite Prompts
           </h1>
         </div>
@@ -126,7 +126,7 @@ export default function Favorites() {
     return (
       <div>
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-white">
+          <h1 className="text-3xl font-bold text-base-content">
             Your Favorite Prompts
           </h1>
           <p className="text-gray-400 mt-2">
@@ -142,7 +142,7 @@ export default function Favorites() {
     <div>
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white">
+        <h1 className="text-3xl font-bold text-base-content">
           Your Favorite Prompts
         </h1>
         <p className="text-gray-400 mt-2">
