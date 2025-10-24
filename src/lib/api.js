@@ -100,25 +100,223 @@ export async function toggleLike(promptId) {
       throw new Error('User must be authenticated to like prompts')
     }
 
-    // For now, let's use a simple approach since we don't have the exact likes table structure
-    // In a real implementation, you'd need to create a proper likes table
-    // This is a placeholder that won't work with the current schema
-    
-    // Since the schema shows likes_count as a cached field, we'll simulate the toggle
-    // In a real app, you'd need to:
-    // 1. Create a separate likes table
-    // 2. Use triggers to update the cached likes_count
-    
-    // For now, return mock data
-    throw new Error('Likes functionality requires additional database setup')
+    // First, check if the user has already liked this prompt
+    const { data: existingLike, error: checkError } = await supabase
+      .from('prompt_like')
+      .select('*')
+      .eq('prompt_id', promptId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (checkError && checkError.code !== 'PGRST116') { // PGRST116 = no rows returned
+      throw checkError
+    }
+
+    let likesCount = 0
+    let currentUserLiked = false
+
+    if (existingLike) {
+      // User has already liked - remove the like
+      const { error: deleteError } = await supabase
+        .from('prompt_like')
+        .delete()
+        .eq('prompt_id', promptId)
+        .eq('user_id', user.id)
+
+      if (deleteError) {
+        throw deleteError
+      }
+      
+      currentUserLiked = false
+    } else {
+      // User hasn't liked yet - add the like
+      const { error: insertError } = await supabase
+        .from('prompt_like')
+        .insert([{ prompt_id: promptId, user_id: user.id }])
+
+      if (insertError) {
+        if (insertError.code === '23505') {
+          // Conflict - user already liked (race condition)
+          console.log('⚠️ Ya habías dado like a este prompt.')
+          currentUserLiked = true
+        } else {
+          throw insertError
+        }
+      } else {
+        currentUserLiked = true
+      }
+    }
+
+    // Get the updated likes count from the prompt table
+    const { data: promptData, error: promptError } = await supabase
+      .from('prompt')
+      .select('likes_count')
+      .eq('id', promptId)
+      .single()
+
+    if (promptError) {
+      throw promptError
+    }
+
+    likesCount = promptData?.likes_count || 0
 
     return {
-      likesCount: likeCount?.length || 0,
-      currentUserLiked: !existingLike
+      likesCount,
+      currentUserLiked
     }
   } catch (error) {
     console.error('Error toggling like:', error)
     throw error
+  }
+}
+
+/**
+ * Like a prompt
+ * @param {string} promptId - The ID of the prompt to like
+ * @returns {Promise<Object>} Result with likesCount and currentUserLiked
+ */
+export async function likePrompt(promptId) {
+  if (USE_MOCK_DATA) {
+    return mockToggleLike(promptId)
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error('User must be authenticated to like prompts')
+    }
+
+    // Insert the like with explicit user_id
+    const { data, error } = await supabase
+      .from('prompt_like')
+      .insert([{ prompt_id: promptId, user_id: user.id }])
+      .select()
+
+    if (error) {
+      if (error.code === '23505') {
+        console.log('⚠️ Ya habías dado like a este prompt.')
+        // Get current state since user already liked
+        const { data: promptData } = await supabase
+          .from('prompt')
+          .select('likes_count')
+          .eq('id', promptId)
+          .single()
+        
+        return {
+          likesCount: promptData?.likes_count || 0,
+          currentUserLiked: true
+        }
+      } else {
+        throw error
+      }
+    }
+
+    // Get the updated likes count
+    const { data: promptData, error: promptError } = await supabase
+      .from('prompt')
+      .select('likes_count')
+      .eq('id', promptId)
+      .single()
+
+    if (promptError) {
+      throw promptError
+    }
+
+    console.log('✅ Like registrado:', data)
+    return {
+      likesCount: promptData?.likes_count || 0,
+      currentUserLiked: true
+    }
+  } catch (error) {
+    console.error('❌ Error al crear el like:', error.message)
+    throw error
+  }
+}
+
+/**
+ * Unlike a prompt
+ * @param {string} promptId - The ID of the prompt to unlike
+ * @returns {Promise<Object>} Result with likesCount and currentUserLiked
+ */
+export async function unlikePrompt(promptId) {
+  if (USE_MOCK_DATA) {
+    return mockToggleLike(promptId)
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      throw new Error('User must be authenticated to unlike prompts')
+    }
+
+    // Remove the like
+    const { error } = await supabase
+      .from('prompt_like')
+      .delete()
+      .eq('prompt_id', promptId)
+      .eq('user_id', user.id)
+
+    if (error) {
+      throw error
+    }
+
+    // Get the updated likes count
+    const { data: promptData, error: promptError } = await supabase
+      .from('prompt')
+      .select('likes_count')
+      .eq('id', promptId)
+      .single()
+
+    if (promptError) {
+      throw promptError
+    }
+
+    console.log('💔 Like eliminado')
+    return {
+      likesCount: promptData?.likes_count || 0,
+      currentUserLiked: false
+    }
+  } catch (error) {
+    console.error('❌ Error al quitar el like:', error.message)
+    throw error
+  }
+}
+
+/**
+ * Check if user has liked a prompt
+ * @param {string} promptId - The ID of the prompt to check
+ * @returns {Promise<boolean>} Whether the user has liked the prompt
+ */
+export async function hasUserLikedPrompt(promptId) {
+  if (USE_MOCK_DATA) {
+    // Mock implementation
+    return Math.random() > 0.5 // Random for testing
+  }
+
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    if (!user) {
+      return false
+    }
+
+    const { data, error } = await supabase
+      .from('prompt_like')
+      .select('*')
+      .eq('prompt_id', promptId)
+      .eq('user_id', user.id)
+      .single()
+
+    if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+      throw error
+    }
+
+    return !!data // Returns true if like exists, false otherwise
+  } catch (error) {
+    console.error('Error checking like status:', error)
+    return false
   }
 }
 
@@ -247,7 +445,7 @@ export async function improvePrompt(originalContent, taskType = 'general') {
   }
 
   try {
-    const response = await fetch('http://3.134.5.42:80/api/refine', {
+    const response = await fetch('https://3.134.5.42:80/api/refine', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

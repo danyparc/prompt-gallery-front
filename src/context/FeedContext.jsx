@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from 'react'
-import { toggleLike as apiToggleLike } from '../lib/api.js'
+import { toggleLike as apiToggleLike, likePrompt, unlikePrompt } from '../lib/api.js'
 
 const FeedContext = createContext({})
 
@@ -49,14 +49,18 @@ export function FeedProvider({ children }) {
     })))
 
     try {
-      // Make API call
-      const result = await apiToggleLike(promptId)
+      // Use specific API calls for better control
+      const result = currentUserLiked 
+        ? await unlikePrompt(promptId)
+        : await likePrompt(promptId)
       
-      // Update with actual result
+      // Update with actual result from the API
       setLikes(prev => new Map(prev.set(promptId, {
         likesCount: result.likesCount,
         currentUserLiked: result.currentUserLiked
       })))
+
+      return result
     } catch (error) {
       // Revert optimistic update on error
       setLikes(prev => new Map(prev.set(promptId, {
@@ -64,8 +68,17 @@ export function FeedProvider({ children }) {
         currentUserLiked: currentUserLiked
       })))
       
-      // You could show a toast notification here
-      console.error('Failed to toggle like:', error)
+      // Enhanced error handling
+      if (error.message.includes('authenticated')) {
+        console.error('User must be logged in to like prompts')
+      } else if (error.code === '23505') {
+        // Handle duplicate like gracefully
+        console.log('Like already exists - refreshing state')
+        // You might want to refresh the actual state here
+      } else {
+        console.error('Failed to toggle like:', error)
+      }
+      
       throw error
     }
   }
