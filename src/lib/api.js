@@ -445,7 +445,7 @@ export async function improvePrompt(originalContent, taskType = 'general') {
   }
 
   try {
-    const response = await fetch('https://3.134.5.42:80/api/refine', {
+    const response = await fetch('https://3.134.5.42/api/refine', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
