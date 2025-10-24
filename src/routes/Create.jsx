@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext.jsx'
 import { createPrompt, improvePrompt } from '../lib/api.js'
-
+import isologo from '../assets/isologo.png'
 const categories = [
   'Creative Writing',
   'Code Generation',
@@ -177,20 +177,29 @@ export default function Create() {
       <div className="card bg-base-200 shadow-lg">
         <div className="card-body">
           {/* Header */}
-          <div className="flex items-center gap-4 mb-6">
-            <div className="avatar placeholder">
-              <div className="bg-primary text-primary-content rounded-full w-12 h-12">
-                <span className="text-lg">{user?.email?.[0]?.toUpperCase() || 'U'}</span>
-              </div>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-base-content">Create a new prompt</h2>
-              <p className="text-sm text-base-content/60">Share your prompt with the community</p>
-            </div>
-          </div>
+                <div className="flex items-center gap-4 mb-6">
+                <div 
+                  className="avatar placeholder bg-gradient-to-br from-primary to-primary-focus rounded-full w-12 h-12 flex items-center justify-center"
+                  style={{
+                  backgroundImage: `url(${isologo})`,
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundRepeat: 'no-repeat'
+                  }}
+                >
+                  {/* Fallback text if image fails to load */}
+                  <span className="text-lg text-primary-content opacity-0">
+                  {user?.email?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-base-content">Create a new prompt</h2>
+                  <p className="text-sm text-base-content/60">Share your prompt with the community</p>
+                </div>
+                </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Title */}
+                <form onSubmit={handleSubmit} className="space-y-6">
+                {/* Title */}
             <div>
               <input
                 type="text"
