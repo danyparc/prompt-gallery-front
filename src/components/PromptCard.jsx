@@ -43,7 +43,7 @@ export default function PromptCard({ prompt }) {
       {prompt.categories && prompt.categories.length > 0 && (
         <div className="flex flex-wrap gap-1 mb-3">
           {prompt.categories.slice(0, 3).map((category, index) => (
-            <span key={index} className="badge badge-neutral badge-sm">
+            <span key={index} className="badge badge-sm">
               {category}
             </span>
           ))}
@@ -100,7 +100,7 @@ export default function PromptCard({ prompt }) {
           className={`btn btn-sm ${
             copied 
               ? 'btn-success' 
-              : 'btn-outline btn-neutral'
+              : 'btn-outline'
           }`}
           onClick={handleCopyPrompt}
         >

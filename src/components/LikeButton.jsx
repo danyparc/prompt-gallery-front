@@ -27,7 +27,7 @@ export default function LikeButton({ promptId, likesCount, currentUserLiked, cla
       className={`btn btn-sm gap-1 ${
         likeState.currentUserLiked 
           ? 'btn-error' 
-          : 'btn-outline btn-neutral'
+          : 'btn-outline'
       } ${!user ? 'opacity-50 cursor-not-allowed' : ''} ${className}`}
       onClick={handleLike}
       disabled={!user}
