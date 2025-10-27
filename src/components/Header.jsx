@@ -8,6 +8,8 @@ import isologo from '../assets/isologo.png'
 
 const categories = [
   'All',
+  'Image Generation',
+  'Video Generation',
   'Cars',
   'Sells',
   'Creative Writing',

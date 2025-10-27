@@ -5,6 +5,8 @@ import { createPrompt, improvePrompt } from '../lib/api.js'
 import isologo from '../assets/isologo.png'
 const categories = [
   'Creative Writing',
+  'Image Generation',
+  'Video Generation',
   'Code Generation',
   'Analysis',
   'Education',
